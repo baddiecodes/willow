@@ -7,7 +7,7 @@
 
 ## What is Willow?
 
-Willow is infrastructure for the agentic AI era — a decentralized vector database and agent identity registry anchored on-chain via Aptos Move, with blob storage served at sub-second latency by Shelby Protocol.
+Willow is infrastructure for the agentic AI era, a decentralized vector database and agent identity registry anchored onchain via Aptos Move, with blob storage served at sub-second latency by Shelby Protocol.
 
 ```
 Your AI Agent / LangChain / CrewAI / MCP
@@ -33,7 +33,7 @@ willow/
 │   ├── collection.move         VectorCollection: chunks + HNSW index blob
 │   ├── access_control.move     ReadProof auth + APT egress payments
 │   ├── agent_registry.move     DID registry for AI agents
-│   └── reputation.move         On-chain reputation scores
+│   └── reputation.move         Onchain reputation scores
 ├── tests/
 │   └── willow_tests.move       13 unit tests
 ├── Move.toml
@@ -193,7 +193,7 @@ aptos move run --function-id "${ADDR}::reputation::initialize"     --profile she
 | `0` | `ACCESS_OPEN` | Collection owner |
 | `1` | `ACCESS_OWNER_ONLY` | Collection owner |
 | `2` | `ACCESS_ALLOWLIST` | Collection owner |
-| `3` | `ACCESS_PAID` | Reader (APT fee on-chain) |
+| `3` | `ACCESS_PAID` | Reader (APT fee onchain) |
 
 ---
 
