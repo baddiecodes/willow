@@ -1,13 +1,22 @@
-# 🌿 Willow — ShelbyAgent Hub
+# 🌿 Willow
 
-> Decentralized vector database + AI agent identity layer  
-> Built on **Shelby Protocol** (Aptos hot storage) + **Aptos Move**
+> Reference implementation of **ShelbyAgent Hub**  
+> A decentralized vector database + AI agent identity layer.
+
+Willow implements **ShelbyAgent Hub protocol**, which defines decentralized infrastructure for AI agents — including vector memory, identity (DIDs), and onchain reputation — built on **Shelby Protocol** storage and **Aptos Move** smart contracts.
 
 ---
 
 ## What is Willow?
 
-Willow is infrastructure for the agentic AI era, a decentralized vector database and agent identity registry anchored onchain via Aptos Move, with blob storage served at sub-second latency by Shelby Protocol.
+**Willow is the reference implementation of ShelbyAgent Hub protocol.**
+
+ShelbyAgent Hub defines a decentralized infrastructure layer for:
+
+• AI agent identity (DIDs)  
+• verifiable agent reputation  
+• decentralized vector memory  
+• permissioned blob access via Shelby read proofs
 
 ```
 Your AI Agent / LangChain / CrewAI / MCP
