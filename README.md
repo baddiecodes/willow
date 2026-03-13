@@ -20,6 +20,9 @@ Your AI Agent / LangChain / CrewAI / MCP
   @willow/indexer  (local HNSW + query API)
 ```
 
+![Willow Architecture](docs/architecture.png)
+```
+
 **Contract address:** `0xb72a54bf4c5fe6e4448e7fd77dcc58c130141a3eba9eed2de7066fde3479aab3`  
 **Network:** Shelbynet (Aptos testnet)
 
