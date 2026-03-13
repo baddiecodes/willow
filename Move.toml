@@ -1,0 +1,20 @@
+[package]
+name = "Willow"
+version = "0.1.0"
+authors = []
+
+[addresses]
+willow = "0xb72a54bf4c5fe6e4448e7fd77dcc58c130141a3eba9eed2de7066fde3479aab3"
+
+[dev-addresses]
+willow = "0xCAFE"
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-core.git"
+rev = "mainnet"
+subdir = "aptos-move/framework/aptos-framework"
+
+[dependencies.AptosStdlib]
+git = "https://github.com/aptos-labs/aptos-core.git"
+rev = "mainnet"
+subdir = "aptos-move/framework/aptos-stdlib"
