@@ -3,7 +3,7 @@
 > Reference implementation of **ShelbyAgent Hub**  
 > A decentralized vector database + AI agent identity layer.
 
-Willow implements **ShelbyAgent Hub protocol**, which defines decentralized infrastructure for AI agents — including vector memory, identity (DIDs), and onchain reputation — built on **Shelby Protocol** storage and **Aptos Move** smart contracts.
+Willow implements **ShelbyAgent Hub protocol**, which defines decentralized infrastructure for AI agents including vector memory, identity (DIDs), and onchain reputation — built on **Shelby Protocol** storage and **Aptos Move** smart contracts.
 
 ---
 
