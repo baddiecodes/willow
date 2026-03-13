@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Willow — ShelbyAgent Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Background -->
+  <div class="bg-layer" aria-hidden="true">
+    <div class="bg-glow bg-glow--1"></div>
+    <div class="bg-glow bg-glow--2"></div>
+    <canvas id="gridCanvas"></canvas>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <span class="logo-willow">Willow</span>
+      <span class="logo-tag">ShelbyAgent Hub</span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <button class="nav-item nav-item--active" data-view="overview">
+        <span class="nav-icon">◈</span>Overview
+      </button>
+      <button class="nav-item" data-view="collections">
+        <span class="nav-icon">⬡</span>Collections
+      </button>
+      <button class="nav-item" data-view="query">
+        <span class="nav-icon">⌖</span>Vector Query
+      </button>
+      <button class="nav-item" data-view="agents">
+        <span class="nav-icon">◎</span>Agents
+      </button>
+      <button class="nav-item" data-view="logs">
+        <span class="nav-icon">⋮</span>Logs
+      </button>
+    </nav>
+
+    <div class="sidebar__status">
+      <div class="status-dot" id="indexerStatusDot"></div>
+      <span id="indexerStatusText">connecting…</span>
+    </div>
+
+    <div class="sidebar__network">
+      <span class="network-badge">shelbynet</span>
+      <span class="contract-addr" id="contractAddrShort">0xb72a…aab3</span>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+
+    <!-- ── OVERVIEW ── -->
+    <section class="view view--active" id="view-overview">
+      <header class="view__header">
+        <h1 class="view__title">Overview</h1>
+        <p class="view__sub">Decentralized vector DB + AI agent identity on Aptos</p>
+      </header>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-card__label">Collections</div>
+          <div class="stat-card__value" id="statCollections">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Indexed Chunks</div>
+          <div class="stat-card__value" id="statChunks">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Registered Agents</div>
+          <div class="stat-card__value" id="statAgents">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Indexer Latency</div>
+          <div class="stat-card__value" id="statLatency">—</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__head">
+          <span class="panel__title">Tracked Collections</span>
+          <button class="btn btn--ghost btn--sm" id="refreshStatus">↻ Refresh</button>
+        </div>
+        <div class="panel__body" id="collectionStatusList">
+          <div class="empty-state">No collections tracked. Add one in Collections →</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__head">
+          <span class="panel__title">Architecture</span>
+        </div>
+        <div class="panel__body arch-diagram">
+          <div class="arch-row">
+            <div class="arch-box arch-box--client">LangChain / CrewAI / MCP</div>
+          </div>
+          <div class="arch-arrow">↓ @willow/sdk</div>
+          <div class="arch-row arch-row--split">
+            <div class="arch-box arch-box--shelby">Shelby Protocol<br/><small>blob reads/writes</small></div>
+            <div class="arch-box arch-box--aptos">Aptos Move<br/><small>ownership · proofs</small></div>
+          </div>
+          <div class="arch-arrow">↑ events</div>
+          <div class="arch-row">
+            <div class="arch-box arch-box--indexer">@willow/indexer<br/><small>HNSW · query API :3001</small></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── COLLECTIONS ── -->
+    <section class="view" id="view-collections">
+      <header class="view__header">
+        <h1 class="view__title">Collections</h1>
+        <p class="view__sub">Vector collections stored on Shelby, registered on Aptos</p>
+      </header>
+
+      <div class="panel">
+        <div class="panel__head">
+          <span class="panel__title">Track a Collection</span>
+        </div>
+        <div class="panel__body">
+          <div class="form-row">
+            <input
+              class="input"
+              id="trackAddrInput"
+              type="text"
+              placeholder="0x… collection address"
+              spellcheck="false"
+            />
+            <button class="btn btn--primary" id="trackBtn">Track</button>
+          </div>
+          <p class="hint">Paste the Aptos object address of a VectorCollection.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__head">
+          <span class="panel__title">Create New Collection</span>
+          <button class="btn btn--ghost btn--sm" id="toggleCreateForm">+ Expand</button>
+        </div>
+        <div class="panel__body panel__body--collapsed" id="createCollectionForm">
+          <div class="form-grid">
+            <label class="label">Name
+              <input class="input" id="colName" type="text" placeholder="my-rag-kb" />
+            </label>
+            <label class="label">Embedding Model
+              <input class="input" id="colModel" type="text" placeholder="text-embedding-3-small" />
+            </label>
+            <label class="label">Dimensions
+              <input class="input" id="colDims" type="number" value="1536" min="1" max="65536" />
+            </label>
+            <label class="label">Distance Metric
+              <select class="input" id="colMetric">
+                <option value="0">Cosine</option>
+                <option value="1">Euclidean (L2)</option>
+                <option value="2">Dot Product</option>
+              </select>
+            </label>
+            <label class="label">Access Policy
+              <select class="input" id="colAccess">
+                <option value="0">Open (public)</option>
+                <option value="1">Owner only</option>
+                <option value="2">Allowlist</option>
+                <option value="3">Paid (APT)</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-row form-row--end">
+            <button class="btn btn--primary" id="createColBtn">Create via SDK</button>
+          </div>
+          <div class="cmd-preview" id="createCmdPreview"></div>
+        </div>
+      </div>
+
+      <div id="collectionCards" class="card-grid"></div>
+    </section>
+
+    <!-- ── VECTOR QUERY ── -->
+    <section class="view" id="view-query">
+      <header class="view__header">
+        <h1 class="view__title">Vector Query</h1>
+        <p class="view__sub">kNN search via the local HNSW indexer (localhost:3001)</p>
+      </header>
+
+      <div class="panel">
+        <div class="panel__head">
+          <span class="panel__title">Query Parameters</span>
+        </div>
+        <div class="panel__body">
+          <div class="form-grid">
+            <label class="label">Collection Address
+              <input class="input" id="queryAddr" type="text" placeholder="0x… collection address" spellcheck="false" />
+            </label>
+            <label class="label">Top K
+              <input class="input" id="queryK" type="number" value="5" min="1" max="100" />
+            </label>
+          </div>
+          <label class="label">Query Vector <span class="hint-inline">(JSON array of floats)</span>
+            <textarea
+              class="input input--textarea"
+              id="queryVector"
+              rows="4"
+              placeholder="[0.12, -0.03, 0.88, ...]  — or click Random to generate a test vector"
+              spellcheck="false"
+            ></textarea>
+          </label>
+          <div class="form-row">
+            <button class="btn btn--ghost" id="randomVecBtn">⚡ Random vector</button>
+            <button class="btn btn--primary" id="runQueryBtn">Run Query →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="queryResultPanel" style="display:none">
+        <div class="panel__head">
+          <span class="panel__title">Results</span>
+          <span class="panel__meta" id="queryLatencyBadge"></span>
+        </div>
+        <div class="panel__body" id="queryResults"></div>
+      </div>
+    </section>
+
+    <!-- ── AGENTS ── -->
+    <section class="view" id="view-agents">
+      <header class="view__header">
+        <h1 class="view__title">Agents</h1>
+        <p class="view__sub">DID registry — did:willow:aptos:… on Aptos Move</p>
+      </header>
+
+      <div class="panel">
+        <div class="panel__head">
+          <span class="panel__title">Look up Agent</span>
+        </div>
+        <div class="panel__body">
+          <div class="form-row">
+            <input class="input" id="agentAddrInput" type="text" placeholder="0x… agent object address" spellcheck="false" />
+            <button class="btn btn--primary" id="lookupAgentBtn">Look up</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="agentInfoPanel" style="display:none">
+        <div class="panel__head">
+          <span class="panel__title">Agent Info</span>
+        </div>
+        <div class="panel__body" id="agentInfoBody"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__head">
+          <span class="panel__title">Register New Agent</span>
+          <button class="btn btn--ghost btn--sm" id="toggleAgentForm">+ Expand</button>
+        </div>
+        <div class="panel__body panel__body--collapsed" id="agentRegisterForm">
+          <div class="form-grid">
+            <label class="label">Agent Name
+              <input class="input" id="agentName" type="text" placeholder="ResearchAgent-Alpha" />
+            </label>
+            <label class="label">Version
+              <input class="input" id="agentVersion" type="text" placeholder="0.1.0" />
+            </label>
+            <label class="label">Framework
+              <select class="input" id="agentFramework">
+                <option>LangChain</option>
+                <option>CrewAI</option>
+                <option>AutoGen</option>
+                <option>MCP</option>
+                <option>Custom</option>
+              </select>
+            </label>
+            <label class="label">Capabilities (comma-separated)
+              <input class="input" id="agentCaps" type="text" placeholder="rag_query, web_search" />
+            </label>
+            <label class="label">Memory Collection Address (optional)
+              <input class="input" id="agentMemCol" type="text" placeholder="0x…" spellcheck="false" />
+            </label>
+          </div>
+          <div class="form-row form-row--end">
+            <button class="btn btn--primary" id="registerAgentBtn">Generate CLI Command</button>
+          </div>
+          <div class="cmd-preview" id="agentCmdPreview"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── LOGS ── -->
+    <section class="view" id="view-logs">
+      <header class="view__header">
+        <h1 class="view__title">Logs</h1>
+        <p class="view__sub">Live indexer activity &amp; on-chain event stream</p>
+      </header>
+
+      <div class="panel panel--fill">
+        <div class="panel__head">
+          <span class="panel__title">Indexer Stream</span>
+          <div class="panel__actions">
+            <button class="btn btn--ghost btn--sm" id="clearLogsBtn">Clear</button>
+            <button class="btn btn--ghost btn--sm" id="pauseLogsBtn">⏸ Pause</button>
+          </div>
+        </div>
+        <div class="panel__body panel__body--terminal" id="logTerminal">
+          <div class="log-line log-line--sys">[willow] dashboard initialised — waiting for indexer…</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
